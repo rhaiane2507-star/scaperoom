@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room Tecnologia | Missão Pen Drive</title>
+  <style>
+    :root {
+      --bg1: #030712;
+      --bg2: #0f172a;
+      --cyan: #38bdf8;
+      --green: #22c55e;
+      --yellow: #facc15;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --orange: #fb923c;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --panel: rgba(15, 23, 42, 0.88);
+      --line: rgba(56, 189, 248, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.25), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(168,85,247,0.20), transparent 34%),
+        radial-gradient(circle at center, rgba(34,197,94,0.08), transparent 35%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 95%);
+    }
+
+    body::after {
+      content: "01001010  ACESSO  PEN DRIVE  SISTEMA  CHAVE  USB  101101";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px 0;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      color: rgba(34,197,94,0.35);
+      white-space: nowrap;
+      animation: codigo 18s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes codigo {
+      from { transform: translateX(-20%); }
+      to { transform: translateX(100%); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .painel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: 0 28px 90px rgba(0,0,0,0.52), inset 0 0 40px rgba(56,189,248,0.05);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      padding: 28px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 20px;
+      background:
+        linear-gradient(90deg, rgba(15,23,42,0.92), rgba(15,23,42,0.35)),
+        repeating-linear-gradient(-45deg, rgba(56,189,248,0.06) 0 2px, transparent 2px 14px);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #bae6fd;
+      border: 1px solid rgba(56,189,248,0.45);
+      background: rgba(56,189,248,0.08);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+    }
+
+    h1 span { color: var(--cyan); text-shadow: 0 0 20px rgba(56,189,248,0.45); }
+
+    .subtitulo {
+      margin: 0;
+      max-width: 780px;
+      color: #cbd5e1;
+      line-height: 1.55;
+      font-size: 1.05rem;
+    }
+
+    .status-box {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .tempo, .nivel, .alarme {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(2,6,23,0.58);
+      border: 1px solid rgba(148,163,184,0.18);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    #tempo {
+      font-family: Consolas, monospace;
+      font-size: 2rem;
+      color: var(--yellow);
+      font-weight: bold;
+      text-shadow: 0 0 18px rgba(250,204,21,0.25);
+    }
+
+    .nivel strong, .alarme strong { font-size: 1.15rem; }
+
+    .conteudo {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      min-height: 560px;
+    }
+
+    .sidebar {
+      padding: 22px;
+      border-right: 1px solid rgba(148,163,184,0.18);
+      background: rgba(2,6,23,0.28);
+    }
+
+    .missao-card, .pistas-card {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 16px;
+      line-height: 1.5;
+      color: #dbeafe;
+    }
+
+    .pistas-card { margin-top: 16px; }
+    .pistas-card h3 { margin: 0 0 10px; color: #fde68a; font-size: 1rem; }
+
+    .pista-item {
+      border: 1px dashed rgba(250,204,21,0.26);
+      background: rgba(250,204,21,0.06);
+      border-radius: 12px;
+      padding: 9px 10px;
+      margin-top: 8px;
+      color: #fde68a;
+      font-size: 0.92rem;
+      min-height: 38px;
+    }
+
+    .pista-vazia { color: rgba(203,213,225,0.55); border-color: rgba(148,163,184,0.18); background: rgba(148,163,184,0.05); }
+
+    .lista-enigmas {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .passo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(148,163,184,0.16);
+      color: #cbd5e1;
+      font-size: 0.92rem;
+    }
+
+    .bolinha {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(148,163,184,0.16);
+      font-weight: bold;
+      font-size: 0.85rem;
+      flex: 0 0 28px;
+    }
+
+    .passo.ativo { border-color: rgba(56,189,248,0.75); color: white; box-shadow: 0 0 18px rgba(56,189,248,0.12); }
+    .passo.ativo .bolinha { background: var(--cyan); color: #082f49; }
+    .passo.ok { border-color: rgba(34,197,94,0.6); color: #bbf7d0; }
+    .passo.ok .bolinha { background: var(--green); color: white; }
+
+    .main { padding: 24px; }
+
+    .intro, .area-jogo, .final {
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(15,23,42,0.55);
+      box-shadow: inset 0 0 36px rgba(0,0,0,0.18);
+      padding: 24px;
+    }
+
+    .intro h2, .final h2 { margin-top: 0; font-size: 2rem; }
+    .intro p, .final p { color: #d1d5db; line-height: 1.7; }
+
+    .email-falso {
+      margin: 20px 0;
+      border-radius: 18px;
+      background: rgba(2,6,23,0.8);
+      border: 1px solid rgba(56,189,248,0.28);
+      overflow: hidden;
+      font-family: Consolas, monospace;
+    }
+
+    .email-topo {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      color: #93c5fd;
+      font-size: 0.9rem;
+    }
+
+    .email-corpo { padding: 16px; color: #dbeafe; line-height: 1.6; }
+    .assinatura { color: #fca5a5; }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.22); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-start, .btn-enviar { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .btn-dica { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .btn-reiniciar { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+    .btn-final { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+
+    .area-jogo { display: none; }
+
+    .barra-progresso {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.18);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .barra-progresso div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      transition: width .4s ease;
+    }
+
+    .cabecalho-enigma {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .etapa {
+      color: #7dd3fc;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tentativas {
+      color: #fecaca;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: .9rem;
+    }
+
+    .terminal {
+      background: #020617;
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .terminal::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.025), transparent 45%, rgba(255,255,255,0.02));
+      pointer-events: none;
+    }
+
+    .terminal-topo {
+      display: flex;
+      gap: 7px;
+      padding: 11px 13px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; background: #64748b; }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .pergunta {
+      padding: 18px;
+      color: #d1fae5;
+      font-family: Consolas, monospace;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      line-height: 1.55;
+      min-height: 130px;
+    }
+
+    .pergunta::before { content: "> "; color: var(--green); }
+
+    .linha-resposta {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: rgba(2,6,23,0.72);
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(56,189,248,0.12); }
+
+    .mensagem {
+      margin-top: 16px;
+      min-height: 32px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+    .erro { color: #fca5a5; }
+    .acerto { color: #86efac; }
+    .dica { color: #fde68a; }
+    .bloqueio { color: #fda4af; }
+
+    .shake { animation: shake .35s linear; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .pulse { animation: pulse .75s ease; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 rgba(34,197,94,0); }
+      50% { box-shadow: 0 0 32px rgba(34,197,94,0.38); }
+      100% { box-shadow: 0 0 0 rgba(34,197,94,0); }
+    }
+
+    .final { display: none; text-align: center; }
+    .final.vitoria, .final.derrota { display: block; }
+    .final.vitoria { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.11); }
+    .final.derrota { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.11); }
+
+    .codigo-final {
+      display: inline-block;
+      margin: 12px 0;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: rgba(2,6,23,0.8);
+      border: 1px dashed rgba(250,204,21,0.7);
+      color: #fde68a;
+      font-family: Consolas, monospace;
+      font-size: 1.18rem;
+      line-height: 1.5;
+    }
+
+    .usb-box {
+      margin: 18px auto;
+      max-width: 520px;
+      border-radius: 20px;
+      background: rgba(2,6,23,0.72);
+      border: 1px solid rgba(56,189,248,0.28);
+      padding: 18px;
+      text-align: left;
+    }
+
+    .usb-title { color: #bae6fd; font-weight: bold; margin-bottom: 10px; }
+    .usb-pistas { color: #e0f2fe; line-height: 1.7; }
+    .botoes-final { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+    @media (max-width: 900px) {
+      .hero, .conteudo { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid rgba(148,163,184,0.18); }
+      .linha-resposta { grid-template-columns: 1fr; }
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="painel">
+      <section class="hero">
+        <div>
+          <div class="tag">🔒 Arquivo confidencial • Missão com objeto escondido</div>
+          <h1>Missão: <span>Pen Drive</span></h1>
+          <p class="subtitulo">O sistema da escola foi invadido e a chave de acesso está em um pen drive escondido. A equipe precisa resolver os 5 enigmas, liberar as pistas e encontrar o objeto antes que o tempo termine.</p>
+        </div>
+        <div class="status-box">
+          <div class="tempo">
+            <div class="label">Tempo restante</div>
+            <div id="tempo">45:00</div>
+          </div>
+          <div class="nivel">
+            <div class="label">Status da missão</div>
+            <strong id="statusMissao">Aguardando início</strong>
+          </div>
+          <div class="alarme">
+            <div class="label">Segurança</div>
+            <strong id="statusSeguranca">Sistema estável</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="conteudo">
+        <aside class="sidebar">
+          <div class="missao-card">
+            <strong>Objetivo:</strong><br>
+            Resolver os enigmas digitais, desbloquear as pistas e encontrar o pen drive físico escondido na escola.
+          </div>
+
+          <div class="pistas-card">
+            <h3>🗂️ Pistas liberadas</h3>
+            <div id="listaPistas"></div>
+          </div>
+
+          <div class="lista-enigmas" id="listaEnigmas"></div>
+        </aside>
+
+        <main class="main">
+          <section class="intro" id="intro">
+            <h2>Mensagem recebida</h2>
+            <p>Antes da apresentação de tecnologia e inovação, a escola recebeu um e-mail estranho. A mensagem dizia que o sistema só seria recuperado quando a equipe encontrasse um pen drive escondido.</p>
+
+            <div class="email-falso">
+              <div class="email-topo">De: guardiao@rede-escolar.com | Assunto: A CHAVE ESTÁ ESCONDIDA</div>
+              <div class="email-corpo">
+                O acesso foi bloqueado. A chave de recuperação está em um pen drive escondido. Cada enigma correto libera uma pista sobre o esconderijo. Um erro ativa bloqueio temporário. Atualizar a página não apaga o progresso.<br><br>
+                <span class="assinatura">— O Guardião do Sistema</span>
+              </div>
+            </div>
+
+            <button class="btn btn-start" id="btnStart">Iniciar missão</button>
+          </section>
+
+          <section class="area-jogo" id="areaJogo">
+            <div class="barra-progresso"><div id="progresso"></div></div>
+
+            <div class="cabecalho-enigma">
+              <div class="etapa" id="etapa">Enigma 1 de 5</div>
+              <div class="tentativas" id="tentativas">Tentativas erradas: 0</div>
+            </div>
+
+            <div class="terminal" id="terminal">
+              <div class="terminal-topo"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+              <div class="pergunta" id="pergunta"></div>
+            </div>
+
+            <div class="linha-resposta">
+              <input id="resposta" type="text" placeholder="Digite a senha ou resposta..." autocomplete="off" />
+              <button class="btn btn-enviar" id="btnEnviar">Desbloquear</button>
+              <button class="btn btn-dica" id="btnDica">Pedir dica</button>
+            </div>
+
+            <div class="mensagem" id="mensagem"></div>
+          </section>
+
+          <section class="final" id="telaFinal">
+            <h2 id="tituloFinal"></h2>
+            <p id="textoFinal"></p>
+            <div class="codigo-final" id="codigoFinal"></div>
+            <div class="usb-box" id="usbBox"></div>
+            <div class="botoes-final">
+              <button class="btn btn-final" id="btnConfirmarPenDrive">Encontramos o pen drive</button>
+              <button class="btn btn-reiniciar" id="btnReiniciar">Reiniciar com senha</button>
+            </div>
+          </section>
+        </main>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const enigmas = [
+      {
+        titulo: 'Módulo 01: Código fragmentado',
+        pergunta: 'Junte os números na ordem dos códigos: 153 – 982 – 673 – 702 – 258 – 503 – 358 – 610',
+        resposta: '229855985',
+        dica: 'Observe a regra usada em cada palavra ou imagem. Exemplo: ABACATE tem 7 letras, então pode virar 7.',
+        pista: 'Pista 1: procure uma pessoa da escola.'
+      },
+      {
+        titulo: 'Módulo 02: Imagens criptografadas',
+        pergunta: 'Encontre o código através das imagens do enigma impresso e digite a sequência numérica correta.',
+        resposta: '5053',
+        dica: 'Cada imagem pode revelar um número. Verifique detalhes, quantidades e símbolos.',
+        pista: 'Pista 2: essa pessoa trabalha com línguas estrangeiras.'
+      },
+      {
+        titulo: 'Módulo 03: Rede sem fio',
+        pergunta: 'Conecto dispositivos sem usar fios e meu símbolo parece ondas. Qual é o código desse módulo?',
+        resposta: '421',
+        dica: 'Preste atenção aos detalhes do símbolo e à pista ligada à conexão.',
+        pista: 'Pista 3: o pen drive não está em cima da mesa; está guardado com essa pessoa.'
+      },
+      {
+        titulo: 'Módulo 04: Frase secreta',
+        pergunta: 'Decifre a frase escondida usando as coordenadas da atividade impressa.',
+        resposta: 'tecnologia conecta pessoas em todo lugar',
+        dica: 'Use a lógica de batalha naval: encontre a letra cruzando linha e coluna.',
+        pista: 'Pista 4: encontre o professor ou a professora de língua estrangeira.'
+      },
+      {
+        titulo: 'Módulo 05: Conexões finais',
+        pergunta: 'Ligue cada elemento corretamente e descubra o último código para liberar o sistema.',
+        resposta: '9274',
+        dica: 'Nem tudo que parece igual tem a mesma função. Pense nas conexões entre os objetos.',
+        pista: 'Pista final: peça o pen drive e pegue sua recompensa.'
+      }
+    ];
+
+    const DURACAO_JOGO = 45 * 60;
+    const DURACAO_BLOQUEIO = 2 * 60;
+    const CHAVE_PROGRESSO = 'escapeRoomTecnologia_penDrive_v4';
+    const SENHA_PROFESSOR = 'prof123';
+
+    let indiceAtual = 0;
+    let fimDoJogo = false;
+    let bloqueadoAte = 0;
+    let segundosRestantes = DURACAO_JOGO;
+    let cronometro = null;
+    let jogoIniciado = false;
+    let erros = 0;
+    let resultadoFinal = null;
+    let pistasLiberadas = [];
+    let penDriveConfirmado = false;
+
+    const introEl = document.getElementById('intro');
+    const areaJogoEl = document.getElementById('areaJogo');
+    const telaFinalEl = document.getElementById('telaFinal');
+    const btnStart = document.getElementById('btnStart');
+    const listaEnigmasEl = document.getElementById('listaEnigmas');
+    const listaPistasEl = document.getElementById('listaPistas');
+    const etapaEl = document.getElementById('etapa');
+    const perguntaEl = document.getElementById('pergunta');
+    const respostaEl = document.getElementById('resposta');
+    const btnEnviar = document.getElementById('btnEnviar');
+    const btnDica = document.getElementById('btnDica');
+    const mensagemEl = document.getElementById('mensagem');
+    const tempoEl = document.getElementById('tempo');
+    const statusMissaoEl = document.getElementById('statusMissao');
+    const statusSegurancaEl = document.getElementById('statusSeguranca');
+    const progressoEl = document.getElementById('progresso');
+    const tentativasEl = document.getElementById('tentativas');
+    const terminalEl = document.getElementById('terminal');
+    const tituloFinalEl = document.getElementById('tituloFinal');
+    const textoFinalEl = document.getElementById('textoFinal');
+    const codigoFinalEl = document.getElementById('codigoFinal');
+    const usbBoxEl = document.getElementById('usbBox');
+    const btnReiniciar = document.getElementById('btnReiniciar');
+    const btnConfirmarPenDrive = document.getElementById('btnConfirmarPenDrive');
+
+    function beep(tipo) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = tipo === 'erro' ? 160 : tipo === 'final' ? 740 : 520;
+        gain.gain.value = 0.045;
+        osc.start();
+        setTimeout(() => {
+          osc.stop();
+          ctx.close();
+        }, tipo === 'final' ? 220 : 140);
+      } catch (e) {}
+    }
+
+    function normalizarTexto(texto) {
+      return texto
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    function formatarTempo(segundos) {
+      const min = Math.floor(segundos / 60);
+      const seg = segundos % 60;
+      return String(min).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
+    }
+
+    function mostrarMensagem(texto, tipo = '') {
+      mensagemEl.textContent = texto;
+      mensagemEl.className = 'mensagem ' + tipo;
+    }
+
+    function salvarEstado() {
+      localStorage.setItem(CHAVE_PROGRESSO, JSON.stringify({
+        indiceAtual,
+        fimDoJogo,
+        bloqueadoAte,
+        segundosRestantes,
+        jogoIniciado,
+        erros,
+        resultadoFinal,
+        pistasLiberadas,
+        penDriveConfirmado,
+        salvoEm: Date.now()
+      }));
+    }
+
+    function carregarEstado() {
+      const salvo = localStorage.getItem(CHAVE_PROGRESSO);
+      if (!salvo) return;
+      try {
+        const estado = JSON.parse(salvo);
+        indiceAtual = Number.isInteger(estado.indiceAtual) ? estado.indiceAtual : 0;
+        fimDoJogo = Boolean(estado.fimDoJogo);
+        bloqueadoAte = Number(estado.bloqueadoAte) || 0;
+        segundosRestantes = Number.isInteger(estado.segundosRestantes) ? estado.segundosRestantes : DURACAO_JOGO;
+        jogoIniciado = Boolean(estado.jogoIniciado);
+        erros = Number.isInteger(estado.erros) ? estado.erros : 0;
+        resultadoFinal = estado.resultadoFinal || null;
+        pistasLiberadas = Array.isArray(estado.pistasLiberadas) ? estado.pistasLiberadas : [];
+        penDriveConfirmado = Boolean(estado.penDriveConfirmado);
+
+        if (jogoIniciado && !fimDoJogo) {
+          const segundosFora = Math.floor((Date.now() - (estado.salvoEm || Date.now())) / 1000);
+          segundosRestantes = Math.max(0, segundosRestantes - segundosFora);
+          if (segundosRestantes <= 0) {
+            segundosRestantes = 0;
+            fimDoJogo = true;
+            resultadoFinal = 'derrota';
+          }
+        }
+      } catch (e) {
+        localStorage.removeItem(CHAVE_PROGRESSO);
+      }
+    }
+
+    function criarListaEnigmas() {
+      listaEnigmasEl.innerHTML = '';
+      enigmas.forEach((enigma, index) => {
+        const item = document.createElement('div');
+        item.className = 'passo';
+        if (index < indiceAtual) item.classList.add('ok');
+        if (index === indiceAtual && jogoIniciado && !fimDoJogo) item.classList.add('ativo');
+        item.innerHTML = `<span class="bolinha">${index < indiceAtual ? '✓' : index + 1}</span><span>${enigma.titulo}</span>`;
+        listaEnigmasEl.appendChild(item);
+      });
+    }
+
+    function atualizarPistas() {
+      listaPistasEl.innerHTML = '';
+      for (let i = 0; i < enigmas.length; i++) {
+        const div = document.createElement('div');
+        if (pistasLiberadas[i]) {
+          div.className = 'pista-item';
+          div.textContent = pistasLiberadas[i];
+        } else {
+          div.className = 'pista-item pista-vazia';
+          div.textContent = `Pista ${i + 1}: bloqueada`;
+        }
+        listaPistasEl.appendChild(div);
+      }
+    }
+
+    function atualizarTela() {
+      if (fimDoJogo) return;
+      const enigma = enigmas[indiceAtual];
+      etapaEl.textContent = `Enigma ${indiceAtual + 1} de ${enigmas.length}`;
+      perguntaEl.textContent = enigma.pergunta;
+      progressoEl.style.width = `${(indiceAtual / enigmas.length) * 100}%`;
+      tentativasEl.textContent = `Tentativas erradas: ${erros}`;
+      statusMissaoEl.textContent = `Módulo ${indiceAtual + 1} em andamento`;
+      statusSegurancaEl.textContent = 'Sistema estável';
+      criarListaEnigmas();
+      atualizarPistas();
+      respostaEl.focus();
+    }
+
+    function respostaEstaCorreta(valor) {
+      const resposta = normalizarTexto(valor);
+      const enigma = enigmas[indiceAtual];
+      const opcoes = [enigma.resposta, ...(enigma.alternativas || [])].map(normalizarTexto);
+      return opcoes.includes(resposta);
+    }
+
+    function aplicarBloqueio() {
+      const restante = Math.ceil((bloqueadoAte - Date.now()) / 1000);
+      if (restante > 0) {
+        respostaEl.disabled = true;
+        btnEnviar.disabled = true;
+        btnDica.disabled = true;
+        statusSegurancaEl.textContent = 'Bloqueado';
+        mostrarMensagem('ALERTA: resposta incorreta. Sistema bloqueado por ' + formatarTempo(restante) + '.', 'bloqueio');
+      } else {
+        respostaEl.disabled = false;
+        btnEnviar.disabled = false;
+        btnDica.disabled = false;
+        if (!fimDoJogo && jogoIniciado) statusSegurancaEl.textContent = 'Sistema estável';
+      }
+    }
+
+    function verificarResposta() {
+      if (fimDoJogo || Date.now() < bloqueadoAte) return;
+      const valor = respostaEl.value;
+      if (!valor.trim()) {
+        mostrarMensagem('Digite uma resposta antes de tentar desbloquear.', 'erro');
+        return;
+      }
+
+      if (respostaEstaCorreta(valor)) {
+        const pista = enigmas[indiceAtual].pista;
+        pistasLiberadas[indiceAtual] = pista;
+        beep('acerto');
+        mostrarMensagem('ACESSO LIBERADO! ' + pista, 'acerto');
+        respostaEl.value = '';
+        indiceAtual += 1;
+        progressoEl.style.width = `${(indiceAtual / enigmas.length) * 100}%`;
+        terminalEl.classList.remove('pulse');
+        void terminalEl.offsetWidth;
+        terminalEl.classList.add('pulse');
+        criarListaEnigmas();
+        atualizarPistas();
+        salvarEstado();
+
+        if (indiceAtual >= enigmas.length) {
+          setTimeout(() => finalizarJogo(true), 1200);
+          return;
+        }
+
+        setTimeout(() => {
+          mostrarMensagem('Novo módulo carregado. Continuem investigando...', 'dica');
+          atualizarTela();
+        }, 1200);
+      } else {
+        erros += 1;
+        tentativasEl.textContent = `Tentativas erradas: ${erros}`;
+        bloqueadoAte = Date.now() + DURACAO_BLOQUEIO * 1000;
+        terminalEl.classList.remove('shake');
+        void terminalEl.offsetWidth;
+        terminalEl.classList.add('shake');
+        beep('erro');
+        aplicarBloqueio();
+        salvarEstado();
+      }
+    }
+
+    function mostrarDica() {
+      if (fimDoJogo || Date.now() < bloqueadoAte) return;
+      mostrarMensagem('DICA DO SISTEMA: ' + enigmas[indiceAtual].dica, 'dica');
+    }
+
+    function montarUsbBox(vitoria) {
+      if (!vitoria) {
+        usbBoxEl.innerHTML = `<div class="usb-title">Registro da missão</div><div class="usb-pistas">A equipe não concluiu todos os módulos dentro do tempo.</div>`;
+        return;
+      }
+      const pistas = pistasLiberadas.map(p => `<div>• ${p}</div>`).join('');
+      usbBoxEl.innerHTML = `<div class="usb-title">📍 Localização do pen drive</div><div class="usb-pistas">${pistas}<br><strong>Conclusão:</strong> encontrem o professor ou a professora de língua estrangeira e peçam o pen drive.</div>`;
+    }
+
+    function finalizarJogo(vitoria) {
+      fimDoJogo = true;
+      resultadoFinal = vitoria ? 'vitoria' : 'derrota';
+      clearInterval(cronometro);
+      introEl.style.display = 'none';
+      areaJogoEl.style.display = 'none';
+      telaFinalEl.className = 'final ' + (vitoria ? 'vitoria' : 'derrota');
+      statusMissaoEl.textContent = vitoria ? 'Localização revelada' : 'Missão falhou';
+      statusSegurancaEl.textContent = vitoria ? 'Procure o pen drive' : 'Sistema perdido';
+      progressoEl.style.width = vitoria ? '100%' : progressoEl.style.width;
+      atualizarPistas();
+      montarUsbBox(vitoria);
+
+      if (vitoria) {
+        beep('final');
+        tituloFinalEl.textContent = 'Missão digital concluída!';
+        textoFinalEl.textContent = 'Agora a equipe precisa sair do sistema e procurar o pen drive físico para finalizar o escape room.';
+        codigoFinalEl.textContent = 'OBJETIVO FINAL: ACHE O PEN DRIVE E PEGUE SUA RECOMPENSA!';
+      } else {
+        tituloFinalEl.textContent = 'Tempo esgotado!';
+        textoFinalEl.textContent = 'O sistema foi bloqueado antes da equipe descobrir a localização completa do pen drive.';
+        codigoFinalEl.textContent = 'PROTOCOLO FINAL: TENTAR NOVAMENTE COM AUTORIZAÇÃO';
+      }
+      btnConfirmarPenDrive.style.display = vitoria ? 'inline-block' : 'none';
+      btnConfirmarPenDrive.textContent = penDriveConfirmado ? 'Pen drive confirmado ✓' : 'Encontramos o pen drive';
+      salvarEstado();
+    }
+
+    function iniciarCronometro() {
+      clearInterval(cronometro);
+      tempoEl.textContent = formatarTempo(segundosRestantes);
+      cronometro = setInterval(() => {
+        if (fimDoJogo || !jogoIniciado) return;
+        segundosRestantes -= 1;
+        if (segundosRestantes <= 0) {
+          segundosRestantes = 0;
+          tempoEl.textContent = formatarTempo(segundosRestantes);
+          finalizarJogo(false);
+          return;
+        }
+        tempoEl.textContent = formatarTempo(segundosRestantes);
+        aplicarBloqueio();
+        salvarEstado();
+      }, 1000);
+    }
+
+    function iniciarJogo() {
+      jogoIniciado = true;
+      introEl.style.display = 'none';
+      telaFinalEl.className = 'final';
+      areaJogoEl.style.display = 'block';
+      statusMissaoEl.textContent = 'Missão iniciada';
+      atualizarTela();
+      iniciarCronometro();
+      salvarEstado();
+    }
+
+    function reiniciarJogo() {
+      const senha = prompt('Digite a senha da professora para reiniciar o jogo:');
+      if (senha !== SENHA_PROFESSOR) {
+        alert('Senha incorreta. O progresso da equipe será mantido.');
+        return;
+      }
+      localStorage.removeItem(CHAVE_PROGRESSO);
+      indiceAtual = 0;
+      fimDoJogo = false;
+      bloqueadoAte = 0;
+      segundosRestantes = DURACAO_JOGO;
+      jogoIniciado = false;
+      erros = 0;
+      resultadoFinal = null;
+      pistasLiberadas = [];
+      penDriveConfirmado = false;
+      respostaEl.value = '';
+      respostaEl.disabled = false;
+      btnEnviar.disabled = false;
+      btnDica.disabled = false;
+      areaJogoEl.style.display = 'none';
+      telaFinalEl.className = 'final';
+      introEl.style.display = 'block';
+      mostrarMensagem('');
+      tempoEl.textContent = formatarTempo(segundosRestantes);
+      statusMissaoEl.textContent = 'Aguardando início';
+      statusSegurancaEl.textContent = 'Sistema estável';
+      progressoEl.style.width = '0%';
+      criarListaEnigmas();
+      atualizarPistas();
+    }
+
+    function confirmarPenDrive() {
+      if (resultadoFinal !== 'vitoria') return;
+      penDriveConfirmado = true;
+      btnConfirmarPenDrive.textContent = 'Pen drive confirmado ✓';
+      codigoFinalEl.textContent = 'SISTEMA RESTAURADO: MISSÃO COMPLETA!';
+      textoFinalEl.textContent = 'Parabéns! A equipe resolveu os enigmas, encontrou o pen drive e recuperou a chave de acesso.';
+      statusMissaoEl.textContent = 'Missão completa';
+      statusSegurancaEl.textContent = 'Sistema restaurado';
+      salvarEstado();
+    }
+
+    btnStart.addEventListener('click', iniciarJogo);
+    btnEnviar.addEventListener('click', verificarResposta);
+    btnDica.addEventListener('click', mostrarDica);
+    btnReiniciar.addEventListener('click', reiniciarJogo);
+    btnConfirmarPenDrive.addEventListener('click', confirmarPenDrive);
+    respostaEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') verificarResposta();
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+      if (jogoIniciado && !fimDoJogo) {
+        salvarEstado();
+        event.preventDefault();
+        event.returnValue = 'A missão está em andamento. O progresso será mantido.';
+      }
+    });
+
+    carregarEstado();
+
+    if (fimDoJogo) {
+      finalizarJogo(resultadoFinal === 'vitoria');
+      if (penDriveConfirmado) confirmarPenDrive();
+    } else if (jogoIniciado) {
+      introEl.style.display = 'none';
+      telaFinalEl.className = 'final';
+      areaJogoEl.style.display = 'block';
+      atualizarTela();
+      mostrarMensagem('Progresso recuperado. Atualizar a página não reinicia a missão.', 'dica');
+      iniciarCronometro();
+    } else {
+      criarListaEnigmas();
+      atualizarPistas();
+      tempoEl.textContent = formatarTempo(segundosRestantes);
+    }
+  </script>
+</body>
+</html>
